@@ -1,0 +1,34 @@
+
+# Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Datasets and model weights
+/data/
+/checkpoints/
+*.safetensors
+*.pt
+*.pth
+*.bin
+
+# Generated outputs
+/logs/
+/multiturn_model_comparison*/
+/multiturn_model_comparison_extended_common/
+*.log
+*.zip
+*.png
+*.pdf
+
+# System files
+.DS_Store

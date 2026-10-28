@@ -1,0 +1,700 @@
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from typing import Any
+
+from src.model_client import OpenAICompatibleModel
+from src.model_output_parser import (
+    parse_final_guess,
+    split_generation,
+)
+from src.prompt_builder import (
+    SYSTEM_PROMPT,
+    build_turn_prompt,
+)
+from src.puzzle_repository import load_game_from_database
+from src.trajectory_logger import (
+    TrajectoryLogger,
+    TurnLog,
+)
+
+
+DEFAULT_DATABASE = "data/db/connections.db"
+DEFAULT_MODEL = "nvidia/Nemotron-H-8B-Reasoning-128K"
+
+
+def run_one_puzzle(
+    *,
+    puzzle_id: str,
+    database_path: str,
+    model_name: str,
+    base_url: str,
+    shuffle_seed: int,
+    max_model_turns: int,
+    temperature: float,
+    top_p: float,
+    max_tokens: int,
+    system_prompt_prefix: str | None = None,
+) -> str:
+    """
+    Run one complete multi-turn Connections game.
+
+    The complete raw generation and exposed reasoning are logged for
+    analysis. Subsequent turns receive only structured memory containing
+    attempted groups, proposed categories, results, and game feedback.
+    """
+
+    model = OpenAICompatibleModel(
+        model_name=model_name,
+        base_url=base_url,
+        temperature=temperature,
+        top_p=top_p,
+        max_tokens=max_tokens,
+        system_prompt_prefix=system_prompt_prefix,
+    )
+
+    available_models = model.health_check()
+
+    print(
+        "vLLM models:",
+        json.dumps(
+            available_models,
+            indent=2,
+        ),
+    )
+
+    game = load_game_from_database(
+        puzzle_id=puzzle_id,
+        shuffle_seed=shuffle_seed,
+        auto_complete_final_group=False,
+    )
+
+    logger = TrajectoryLogger(
+        database_path
+    )
+
+    run_id = logger.start_run(
+        puzzle_id=game.puzzle_id,
+        model_provider=model.provider_name,
+        model_name=model.model_name,
+        shuffle_seed=shuffle_seed,
+        max_mistakes=game.max_mistakes,
+        auto_complete_final_group=False,
+        decoding_settings={
+            "temperature": temperature,
+            "top_p": top_p,
+            "max_tokens": max_tokens,
+        },
+        system_prompt=SYSTEM_PROMPT,
+        run_metadata={
+            "runner": "run_one_puzzle.py",
+            "memory_policy": (
+                "attempted_groups_categories_and_feedback"
+            ),
+            "full_reasoning_logged": True,
+            "full_reasoning_in_model_memory": False,
+            "repetition_policy": (
+                "rejected_by_game_environment"
+            ),
+            "reasoning_capture": "raw_think_tags",
+            "system_prompt_prefix": system_prompt_prefix,
+        },
+    )
+
+    # Compact structured history used to construct subsequent prompts.
+    # It deliberately does not contain raw generations or reasoning traces.
+    previous_turns: list[dict[str, Any]] = []
+
+    # Correct groups explicitly submitted by the model.
+    predicted_groups: list[dict[str, Any]] = []
+
+    print(f"Run ID: {run_id}")
+    print(f"Puzzle: {game.puzzle_id}")
+    print(
+        "Initial words:",
+        list(
+            game.get_remaining_words_in_display_order()
+        ),
+    )
+
+    try:
+        for turn_index in range(
+            max_model_turns
+        ):
+            if game.game_over:
+                break
+
+            # Authoritative state before this turn.
+            state_before = game.get_state()
+            state_before["solved_groups"] = (
+                game.get_solved_groups()
+            )
+
+            prompt = build_turn_prompt(
+                game_state=state_before,
+                previous_turns=previous_turns,
+            )
+
+            print()
+            print("=" * 80)
+            print(f"TURN {turn_index}")
+            print("=" * 80)
+
+            # Llama-3.1-Nemotron-Nano-8B-v1 requires its reasoning-mode
+            # switch to be the entire system prompt. For that model only,
+            # move our normal Connections instructions into the user message.
+            model_name_lower = model_name.lower()
+
+            is_nemotron_nano8b = (
+                "nemotron" in model_name_lower
+                and "8b" in model_name_lower
+            )
+
+            if is_nemotron_nano8b:
+                effective_system_prompt = "detailed thinking on"
+                effective_user_prompt = (
+                    f"{SYSTEM_PROMPT}\n\n"
+                    f"{prompt}"
+                )
+            else:
+                effective_system_prompt = SYSTEM_PROMPT
+                effective_user_prompt = prompt
+
+            print()
+            print("EFFECTIVE SYSTEM PROMPT")
+            print("-" * 80)
+            print(effective_system_prompt)
+
+            print()
+            print("EFFECTIVE USER PROMPT")
+            print("-" * 80)
+            print(effective_user_prompt)
+            print("-" * 80)
+
+            response = model.generate(
+                system_prompt=SYSTEM_PROMPT,
+                user_prompt=prompt,
+            )
+
+            finish_reason = (
+                response.metadata.get(
+                    "finish_reason"
+                )
+            )
+
+            generation_truncated = (
+                finish_reason == "length"
+            )
+
+            print("RAW MODEL OUTPUT")
+            print(response.raw_output)
+
+            # Keep the exact generation while separating any exposed
+            # reasoning from the user-facing response.
+            split = split_generation(
+                response.raw_output
+            )
+
+            parsed = parse_final_guess(
+                split.visible_response
+            )
+
+            recovery_used = False
+            recovery_type = None
+            recovery_response = None
+            recovery_parsed = None
+
+            if not parsed.success:
+                recovery_type = (
+                    "truncation_recovery"
+                    if generation_truncated
+                    else "format_repair"
+                )
+
+                recovery_used = True
+
+                recovery_response = model.recover_answer(
+                    system_prompt=SYSTEM_PROMPT,
+                    current_state_prompt=prompt,
+                    original_generation=response.raw_output,
+                    recovery_type=recovery_type,
+    		    available_words=list(
+        		    state_before["remaining_words"]
+    		    ),
+                    max_tokens=192,
+                )
+
+                recovery_parsed = parse_final_guess(
+                    recovery_response.raw_output
+                )
+
+                if recovery_parsed.success:
+                    parsed = recovery_parsed
+                else:
+                    if generation_truncated:
+                        parsed.error = (
+                            "Original generation was truncated and "
+                            "the recovery call also failed to produce "
+                            "a valid final JSON guess."
+                        )
+                    else:
+                        parsed.error = (
+                            "Original generation finished without a valid "
+                            "final JSON guess and the format-repair call "
+                            "also failed."
+                        )
+
+            result = None
+
+            if parsed.success:
+                # The ConnectionsGame environment detects repeated
+                # order-independent word sets and rejects them without
+                # consuming a mistake.
+                result = game.submit_guess(
+                    parsed.guess,
+                    proposed_category=parsed.category,
+                )
+
+                game_status = (
+                    result.status.value
+                )
+                feedback = result.message
+
+                if game_status == "correct":
+                    predicted_groups.append(
+                        {
+                            "turn_index": turn_index,
+                            "words": list(
+                                result.guessed_words
+                            ),
+                            "proposed_category": (
+                                parsed.category
+                            ),
+                            "matched_group_index": (
+                                result.matched_group_index
+                            ),
+                            "ground_truth_category": (
+                                result.matched_category
+                            ),
+                        }
+                    )
+
+            else:
+                game_status = "parse_failure"
+
+                feedback = (
+                    "FORMAT ERROR: "
+                    f"{parsed.error} "
+                    "No official guess was submitted and "
+                    "no game mistake was consumed."
+                )
+
+            print()
+            print("PARSED TURN")
+            print(
+                json.dumps(
+                    {
+                        "reasoning_extraction_method": (
+                            split.extraction_method
+                        ),
+                        "has_internal_reasoning": (
+                            split.internal_reasoning
+                            is not None
+                        ),
+                        "finish_reason": finish_reason,
+                        "generation_truncated": (
+                            generation_truncated
+                        ),
+
+            		"recovery_used": recovery_used,
+            		"recovery_type": recovery_type,
+            		"recovery_parse_success": (
+                	    recovery_parsed.success
+                	    if recovery_parsed is not None
+                	    else None
+            		),
+
+                        "guess": parsed.guess,
+                        "category": parsed.category,
+                        "parse_success": (
+                            parsed.success
+                        ),
+                        "game_status": game_status,
+                        "feedback": feedback,
+                    },
+                    indent=2,
+                )
+            )
+
+            # The full generation and reasoning are still stored here,
+            # even though they are not included in subsequent prompts.
+            logger.log_turn(
+                run_id=run_id,
+                turn=TurnLog(
+                    turn_index=turn_index,
+                    prompt_shown=prompt,
+                    raw_generation=split.raw_output,
+
+                    remaining_words_before=list(
+                        state_before[
+                            "remaining_words"
+                        ]
+                    ),
+                    solved_group_indices_before=list(
+                        state_before[
+                            "solved_group_indices"
+                        ]
+                    ),
+                    mistakes_used_before=(
+                        state_before[
+                            "mistakes_used"
+                        ]
+                    ),
+
+                    internal_reasoning=(
+                        split.internal_reasoning
+                    ),
+                    visible_response=(
+                        split.visible_response
+                    ),
+                    reasoning_extraction_method=(
+                        split.extraction_method
+                    ),
+                    reasoning_start_token=(
+                        "<think>"
+                        if split.extraction_method
+                        == "think_tags"
+                        else None
+                    ),
+                    reasoning_end_token=(
+                        "</think>"
+                        if split.extraction_method
+                        in {
+                            "think_tags",
+                            "closing_think_tag",
+                        }
+                        else None
+                    ),
+
+                    parsed_guess=parsed.guess,
+                    proposed_category=(
+                        parsed.category
+                    ),
+                    parse_success=(
+                        parsed.success
+                    ),
+                    parse_error=parsed.error,
+
+                    guess_result=result,
+                    feedback_returned=feedback,
+
+                    latency_ms=(
+                        response.latency_ms
+                    ),
+                    prompt_tokens=(
+                        response.prompt_tokens
+                    ),
+                    completion_tokens=(
+                        response.completion_tokens
+                    ),
+                    total_tokens=(
+                        response.total_tokens
+                    ),
+
+                    provider_request_id=(
+                        response.provider_request_id
+                    ),
+                    model_metadata=(
+                        response.metadata
+                    ),
+
+                    recovery_used=recovery_used,
+                    recovery_type=recovery_type,
+
+                    recovery_raw_output=(
+                        recovery_response.raw_output
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                    recovery_parse_success=(
+                        recovery_parsed.success
+                        if recovery_parsed is not None
+                        else None
+                    ),
+
+                    recovery_parse_error=(
+                        recovery_parsed.error
+                        if recovery_parsed is not None
+                        else None
+                    ),
+
+                    recovery_latency_ms=(
+                        recovery_response.latency_ms
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                    recovery_prompt_tokens=(
+                        recovery_response.prompt_tokens
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                    recovery_completion_tokens=(
+                        recovery_response.completion_tokens
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                    recovery_total_tokens=(
+                        recovery_response.total_tokens
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                    recovery_provider_request_id=(
+                        recovery_response.provider_request_id
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                    recovery_metadata=(
+                        recovery_response.metadata
+                        if recovery_response is not None
+                        else None
+                    ),
+
+                ),
+            )
+
+            # Only concise structured state is retained for the next turn.
+            # The raw generation and full reasoning are intentionally absent.
+            previous_turns.append(
+                {
+                    "turn_index": turn_index,
+                    "guess": parsed.guess,
+                    "category": parsed.category,
+                    "parse_success": (
+                        parsed.success
+                    ),
+                    "parse_error": (
+                        parsed.error
+                    ),
+                    "finish_reason": (
+                        finish_reason
+                    ),
+                    "generation_truncated": (
+                        generation_truncated
+                    ),
+
+		    "recovery_used": recovery_used,
+		    "recovery_type": recovery_type,
+
+                    "game_status": (
+                        game_status
+                    ),
+                    "feedback": feedback,
+                    "mistakes_remaining": (
+                        result.mistakes_remaining
+                        if result is not None
+                        else state_before[
+                            "mistakes_remaining"
+                        ]
+                    ),
+                    "remaining_words": (
+                        list(
+                            result.remaining_words
+                        )
+                        if result is not None
+                        else list(
+                            state_before[
+                                "remaining_words"
+                            ]
+                        )
+                    ),
+                    "solved_group_indices": (
+                        list(
+                            result.solved_group_indices
+                        )
+                        if result is not None
+                        else list(
+                            state_before[
+                                "solved_group_indices"
+                            ]
+                        )
+                    ),
+                }
+            )
+
+        if game.game_over:
+            logger.complete_run(
+                run_id=run_id,
+                game=game,
+                final_predicted_groups=(
+                    predicted_groups
+                ),
+            )
+
+            print()
+            print("=" * 80)
+            print("RUN COMPLETED")
+            print("=" * 80)
+            print(f"Solved: {game.solved}")
+            print(
+                f"Guesses used: "
+                f"{game.guesses_used}"
+            )
+            print(
+                f"Mistakes used: "
+                f"{game.mistakes_used}"
+            )
+
+            print(
+                "Solved groups:",
+                json.dumps(
+                    game.get_solved_groups(),
+                    indent=2,
+                ),
+            )
+
+            print(
+                "Model-predicted groups:",
+                json.dumps(
+                    predicted_groups,
+                    indent=2,
+                ),
+            )
+
+        else:
+            raise RuntimeError(
+                "Maximum model-turn limit reached "
+                f"({max_model_turns})."
+            )
+
+        return run_id
+
+    except Exception as error:
+        logger.fail_run(
+            run_id=run_id,
+            error=error,
+            game=game,
+        )
+        raise
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run one multi-turn Connections puzzle "
+            "using an OpenAI-compatible model server."
+        )
+    )
+
+    parser.add_argument(
+        "--puzzle-id",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--database",
+        default=DEFAULT_DATABASE,
+    )
+
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+    )
+
+    parser.add_argument(
+        "--base-url",
+        default="http://127.0.0.1:8000/v1",
+    )
+
+    parser.add_argument(
+        "--shuffle-seed",
+        type=int,
+        default=42,
+    )
+
+    parser.add_argument(
+        "--max-model-turns",
+        type=int,
+        default=12,
+    )
+
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.6,
+    )
+
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=0.95,
+    )
+
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=4096,
+    )
+
+    parser.add_argument(
+        "--system-prompt-prefix",
+        default=None,
+        help=(
+            "Optional text prepended to the system prompt. "
+            "Used for model-specific controls such as "
+            "'detailed thinking on'."
+        ),
+    )
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    arguments = parse_args()
+
+    try:
+        completed_run_id = run_one_puzzle(
+            puzzle_id=(
+                arguments.puzzle_id
+            ),
+            database_path=(
+                arguments.database
+            ),
+            model_name=arguments.model,
+            base_url=arguments.base_url,
+            shuffle_seed=(
+                arguments.shuffle_seed
+            ),
+            max_model_turns=(
+                arguments.max_model_turns
+            ),
+            temperature=(
+                arguments.temperature
+            ),
+            top_p=arguments.top_p,
+            max_tokens=(
+                arguments.max_tokens
+            ),
+            system_prompt_prefix=(
+                arguments.system_prompt_prefix
+            ),
+        )
+
+        print(
+            f"Stored run: "
+            f"{completed_run_id}"
+        )
+
+    except Exception as error:
+        print(
+            f"Run failed: {error}",
+            file=sys.stderr,
+        )
+        raise
