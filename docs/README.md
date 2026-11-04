@@ -2,7 +2,7 @@
 
 [Live page](https://artifex2002.github.io/connections_evals/) · [Portfolio](https://artifex2002.github.io/)
 
-A buildless research companion exploring discovery, preservation, and action in Connections reasoning. It includes a playable demonstration puzzle, three annotated trajectory replays, a peak-versus-final comparison, and a methodology walkthrough.
+A buildless research companion evaluating reasoning models through single-shot (single-turn) and multi-turn chain-of-thought (CoT) reasoning traces on Connections puzzles. Single-turn evaluation follows one extended trace to a final partition; multi-turn evaluation follows successive traces, official guesses, and environment feedback. It includes a playable demonstration puzzle, three annotated trajectory replays, a peak-versus-final comparison, and a methodology walkthrough.
 
 ## Source and preview
 

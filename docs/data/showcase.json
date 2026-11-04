@@ -71,7 +71,7 @@
     {
       "id": "regression",
       "title": "A solution found. Then revised away.",
-      "regime": "SINGLE-SHOT \u00b7 CONSTRUCTED EXAMPLE",
+      "regime": "SINGLE-TURN CoT \u00b7 CONSTRUCTED EXAMPLE",
       "model": null,
       "steps": [
         {
@@ -317,7 +317,7 @@
     {
       "id": "success",
       "title": "A good state carried all the way through.",
-      "regime": "SINGLE-SHOT \u00b7 CONSTRUCTED EXAMPLE",
+      "regime": "SINGLE-TURN CoT \u00b7 CONSTRUCTED EXAMPLE",
       "model": null,
       "steps": [
         {
@@ -541,7 +541,7 @@
     {
       "id": "loop",
       "title": "A different action. The same old mistake.",
-      "regime": "MULTI-TURN \u00b7 CONSTRUCTED EXAMPLE",
+      "regime": "MULTI-TURN CoT \u00b7 CONSTRUCTED EXAMPLE",
       "model": null,
       "steps": [
         {
@@ -829,7 +829,7 @@
   ],
   "comparison": {
     "status": "paper-reported",
-    "scope": "568 shared single-shot puzzles",
+    "scope": "568 shared puzzles \u00b7 single-shot (single-turn) CoT evaluation",
     "source": "Supplied paper, section 3.1",
     "models": [
       {

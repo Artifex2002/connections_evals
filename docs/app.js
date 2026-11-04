@@ -99,7 +99,7 @@ function renderComparison() {
   $('comparison-insight').textContent=peaksVisible?'Gemma retains almost all of its peak quality. Qwen3 and GPT-OSS reach higher peaks, then lose more before the final answer.':'The endpoints tell a remarkably similar story.';
 }
 const methodDetails=[
- ['DETERMINISTIC EXTRACTION','Lexical matching identifies spans containing at least two puzzle words. This stage finds candidate word sets without deciding whether the model accepts them.'],
+ ['DETERMINISTIC EXTRACTION','Lexical matching identifies spans in a chain-of-thought reasoning trace containing at least two puzzle words. This stage finds candidate word sets without deciding whether the model accepts them.'],
  ['AUTOMATED STANCE CLASSIFICATION','A classifier labels candidates as propose, refine_add, refine_pivot, reject, commit, enumerate, or mention. Only hypothesis-bearing labels update the partition. Human validation remains an important next step.'],
  ['DETERMINISTIC STATE UPDATES','Hypothesis-bearing groups update an accumulated partition with last-writer-wins reassignment. Parsed submissions anchor official action states. Different reconstruction policies must retain explicit provenance.'],
  ['TRAJECTORY-LEVEL ANALYSIS','M1–M4 describe revision, error propagation, structural drift, and discovery versus preservation. Multi-turn boundaries additionally expose reasoning gain, commitment loss, action change, and returns to earlier guesses.']
