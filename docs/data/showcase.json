@@ -1,0 +1,852 @@
+{
+  "schemaVersion": 1,
+  "status": "illustrative",
+  "provenance": {
+    "source": "Constructed for this interactive explainer; not experimental results.",
+    "policy": "demo-explicit-partitions-v1",
+    "codeRevision": null,
+    "dataSnapshot": null
+  },
+  "puzzle": {
+    "id": "demo-original-001",
+    "source": "Original demonstration puzzle",
+    "words": [
+      "MERCURY",
+      "BASS",
+      "LATTE",
+      "WRENCH",
+      "DRUMS",
+      "EARTH",
+      "SAW",
+      "MOCHA",
+      "VIOLIN",
+      "ESPRESSO",
+      "MARS",
+      "HAMMER",
+      "CAPPUCCINO",
+      "DRILL",
+      "VENUS",
+      "PIANO"
+    ],
+    "groups": [
+      {
+        "category": "Planets",
+        "words": [
+          "MERCURY",
+          "EARTH",
+          "MARS",
+          "VENUS"
+        ]
+      },
+      {
+        "category": "Coffee drinks",
+        "words": [
+          "ESPRESSO",
+          "LATTE",
+          "MOCHA",
+          "CAPPUCCINO"
+        ]
+      },
+      {
+        "category": "Instruments",
+        "words": [
+          "BASS",
+          "DRUMS",
+          "PIANO",
+          "VIOLIN"
+        ]
+      },
+      {
+        "category": "Tools",
+        "words": [
+          "HAMMER",
+          "SAW",
+          "DRILL",
+          "WRENCH"
+        ]
+      }
+    ]
+  },
+  "runs": [
+    {
+      "id": "regression",
+      "title": "A solution found. Then revised away.",
+      "regime": "SINGLE-SHOT \u00b7 CONSTRUCTED EXAMPLE",
+      "model": null,
+      "steps": [
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "LATTE",
+              "BASS",
+              "HAMMER"
+            ],
+            [
+              "EARTH",
+              "ESPRESSO",
+              "DRUMS",
+              "SAW"
+            ],
+            [
+              "MARS",
+              "MOCHA",
+              "PIANO",
+              "DRILL"
+            ],
+            [
+              "VENUS",
+              "CAPPUCCINO",
+              "VIOLIN",
+              "WRENCH"
+            ]
+          ],
+          "title": "An uncertain starting point",
+          "description": "Several proposed groups mix words from different categories. The initial partition has no correct within-group pairs.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "MOCHA",
+              "PIANO"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "One connection comes into focus",
+          "description": "The planet group is represented correctly. Other words remain mixed or unassigned.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Useful partial structure accumulates",
+          "description": "Two exact groups and two clean partial groups are now represented. Partial connections receive credit.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "A complete solution is represented",
+          "description": "All four groups match the gold partition. This is the best state in this constructed run.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "The solution survives another step",
+          "description": "Continued reasoning does not have to cause regression. At this point, all useful structure is preserved.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH",
+              "VIOLIN"
+            ]
+          ],
+          "title": "A revision disrupts a correct group",
+          "description": "VIOLIN moves into the tool group. The resulting partition breaks the four-words-per-group constraint.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "HAMMER"
+            ],
+            [
+              "VIOLIN",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "A neat partition can still be wrong",
+          "description": "All groups contain four words again, but HAMMER and VIOLIN remain swapped. Structural validity alone is insufficient.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "HAMMER"
+            ],
+            [
+              "VIOLIN",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "The submitted answer loses earlier progress",
+          "description": "The final partition preserves less correct structure than the best state. Peak-to-final loss separates discovery from preservation.",
+          "kind": "submission"
+        }
+      ]
+    },
+    {
+      "id": "success",
+      "title": "A good state carried all the way through.",
+      "regime": "SINGLE-SHOT \u00b7 CONSTRUCTED EXAMPLE",
+      "model": null,
+      "steps": [
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "LATTE",
+              "BASS",
+              "HAMMER"
+            ],
+            [
+              "EARTH",
+              "ESPRESSO",
+              "DRUMS",
+              "SAW"
+            ],
+            [
+              "MARS",
+              "MOCHA",
+              "PIANO",
+              "DRILL"
+            ],
+            [
+              "VENUS",
+              "CAPPUCCINO",
+              "VIOLIN",
+              "WRENCH"
+            ]
+          ],
+          "title": "The same uncertain start",
+          "description": "This constructed run begins with the same mixed partition as the regression example.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ]
+          ],
+          "title": "A first group is found",
+          "description": "The planets form one exact group. All other words remain unassigned.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ]
+          ],
+          "title": "A second group is preserved",
+          "description": "Coffee drinks are added without disturbing the planet group.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "The remaining structure takes shape",
+          "description": "The model represents the instruments as a clean partial group and the tools as an exact group.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "A full solution is discovered",
+          "description": "All groups now match the gold partition.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Useful structure stays stable",
+          "description": "Further reasoning preserves the partition.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "The final choice agrees with the best state",
+          "description": "No peak-to-final degradation appears in this example.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Discovery becomes a correct final answer",
+          "description": "The final partition matches the best state. This example has zero peak-to-final loss.",
+          "kind": "submission"
+        }
+      ]
+    },
+    {
+      "id": "loop",
+      "title": "A different action. The same old mistake.",
+      "regime": "MULTI-TURN \u00b7 CONSTRUCTED EXAMPLE",
+      "model": null,
+      "steps": [
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "LATTE",
+              "BASS",
+              "HAMMER"
+            ],
+            [
+              "EARTH",
+              "ESPRESSO",
+              "DRUMS",
+              "SAW"
+            ],
+            [
+              "MARS",
+              "MOCHA",
+              "PIANO",
+              "DRILL"
+            ],
+            [
+              "VENUS",
+              "CAPPUCCINO",
+              "VIOLIN",
+              "WRENCH"
+            ]
+          ],
+          "title": "The interaction begins",
+          "description": "A multi-turn model can use prior actions and their feedback. This example isolates the difference between changing an action and avoiding old mistakes.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "LATTE"
+            ],
+            [
+              "VENUS",
+              "ESPRESSO",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Guess A is one word away",
+          "description": "Three planets are grouped with LATTE. The feedback says one word is wrong, without revealing which one.",
+          "kind": "submission",
+          "action": [
+            "MERCURY",
+            "EARTH",
+            "MARS",
+            "LATTE"
+          ],
+          "feedback": "ONE-AWAY",
+          "action_key": "A"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "A better partition is represented",
+          "description": "During the next turn, a fully correct partition is briefly represented. This reconstruction is not itself an official action.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "HAMMER"
+            ],
+            [
+              "VIOLIN",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Guess B changes the action",
+          "description": "The next guess contains three instruments and HAMMER. It differs from A, but is also one word away.",
+          "kind": "submission",
+          "action": [
+            "BASS",
+            "DRUMS",
+            "PIANO",
+            "HAMMER"
+          ],
+          "feedback": "ONE-AWAY",
+          "action_key": "B"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Useful structure appears again",
+          "description": "A better state is represented, yet the action history is about to be ignored.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "LATTE"
+            ],
+            [
+              "VENUS",
+              "ESPRESSO",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Guess A returns",
+          "description": "The exact unordered set A has already been submitted. REPEATED feedback rejects this action without using another mistake.",
+          "kind": "submission",
+          "action": [
+            "MERCURY",
+            "EARTH",
+            "MARS",
+            "LATTE"
+          ],
+          "feedback": "REPEATED",
+          "action_key": "A"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "VIOLIN"
+            ],
+            [
+              "HAMMER",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Reasoning improves; history still matters",
+          "description": "Finding useful structure does not guarantee that it will constrain the next official guess.",
+          "kind": "reasoning"
+        },
+        {
+          "partition": [
+            [
+              "MERCURY",
+              "EARTH",
+              "MARS",
+              "VENUS"
+            ],
+            [
+              "ESPRESSO",
+              "LATTE",
+              "MOCHA",
+              "CAPPUCCINO"
+            ],
+            [
+              "BASS",
+              "DRUMS",
+              "PIANO",
+              "HAMMER"
+            ],
+            [
+              "VIOLIN",
+              "SAW",
+              "DRILL",
+              "WRENCH"
+            ]
+          ],
+          "title": "Guess B returns too",
+          "description": "A \u2192 B \u2192 A \u2192 B changes every adjacent action, while repeatedly returning to rejected history.",
+          "kind": "submission",
+          "action": [
+            "BASS",
+            "DRUMS",
+            "PIANO",
+            "HAMMER"
+          ],
+          "feedback": "REPEATED",
+          "action_key": "B"
+        }
+      ]
+    }
+  ],
+  "comparison": {
+    "status": "paper-reported",
+    "scope": "568 shared single-shot puzzles",
+    "source": "Supplied paper, section 3.1",
+    "models": [
+      {
+        "name": "Gemma-3-27B",
+        "final": 0.785,
+        "regret": 0.013
+      },
+      {
+        "name": "Qwen3-4B",
+        "final": 0.782,
+        "regret": 0.082
+      },
+      {
+        "name": "GPT-OSS-20B",
+        "final": 0.778,
+        "regret": 0.105
+      }
+    ]
+  }
+}

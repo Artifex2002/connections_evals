@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2eb">
+  <meta name="description" content="Finding Is Not Acting: an interactive exploration of how language models discover, preserve, and act on useful structure in Connections puzzles.">
+  <title>Finding Is Not Acting — An Interactive Research Essay</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="header wrap">
+  <a class="brand" href="#" aria-label="Finding Is Not Acting, home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Finding Is Not Acting<span class="brand-sub">A STUDY OF REASONING IN MOTION</span></span></a>
+  <nav aria-label="Main navigation"><a href="#replay">The replay</a><a href="#findings">The findings</a><a href="#method">The method</a><a class="nav-code" href="https://github.com/Artifex2002/connections_evals" target="_blank" rel="noopener">View code <span aria-hidden="true">↗</span></a></nav>
+</header>
+<main id="main">
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy"><div class="eyebrow"><span class="dot"></span> TRAJECTORY-LEVEL EVALUATION</div>
+      <h1 id="hero-title">Finding is<br>not <em>Acting.</em></h1>
+      <p class="hero-deck">A model can find the right structure.<br>Then lose it before the answer.</p>
+      <p class="hero-description">What happens between a good idea and a final action? We follow language models through Connections puzzles to make that gap visible.</p>
+      <div class="hero-actions"><a class="button primary" href="#replay">Explore the trajectories <span aria-hidden="true">↗</span></a><a class="text-link" href="#question">Start with the question <span aria-hidden="true">↓</span></a></div>
+    </div>
+    <div class="hero-figure" aria-label="Illustrative partition trajectory showing discovered structure and subsequent loss">
+      <div class="figure-top"><span class="mono">A SOLUTION, ALMOST KEPT.</span><span class="figure-index">FIG. 01</span></div>
+      <div class="mini-state"><span class="mono">01 / USEFUL STRUCTURE FOUND</span><span class="small-key"><i class="key good"></i>Exact group</span></div>
+      <div class="hero-tiles" id="hero-tiles"></div>
+      <div class="hero-flow"><span></span><span>continued reasoning</span><span></span><b aria-hidden="true">↓</b></div>
+      <div class="hero-event"><span class="event-cross" aria-hidden="true">↗</span><div><strong>A better state was available.</strong><span>The submitted state did not preserve it.</span></div><span class="loss-label">LOST<br>PROGRESS</span></div>
+      <div class="hero-chart" id="hero-chart"></div>
+      <div class="figure-bottom"><span>Discovery ≠ preservation ≠ action</span><span class="demo-label">ILLUSTRATIVE EXAMPLE</span></div>
+    </div>
+    <div class="study-strip"><span class="strip-label mono">THE STUDY<br><span>AS REPORTED IN THE PAPER</span></span><div><strong>568</strong><span>shared single-shot puzzles</span></div><div><strong>14</strong><span>single-shot models</span></div><div><strong>4</strong><span>multi-turn models</span></div><p>Same task. Different journeys.<br>More than a final score.</p></div>
+  </section>
+
+  <section class="question wrap section-space" id="question" aria-labelledby="question-title">
+    <div class="section-caption"><span class="mono">01 / THE QUESTION</span><span class="hairline"></span></div>
+    <div class="question-grid"><div><h2 id="question-title">A final answer leaves<br>most of the story <em>untold.</em></h2><p>Two models can finish with the same score. One never finds a better solution. The other finds it, revises it, and loses it.</p><p>Connections gives us a controlled way to study the difference: sixteen words, four hidden groups, and a known solution against which to score each expressed hypothesis.</p><a class="text-link" href="#replay">Watch what the score misses <span aria-hidden="true">↗</span></a></div>
+      <div class="puzzle-panel"><div class="panel-heading"><span class="mono">SIXTEEN WORDS. FOUR CONNECTIONS.</span><button class="quiet-button" id="puzzle-reveal" type="button">Reveal groups ↗</button></div><div id="puzzle-board" class="puzzle-board" aria-label="Select four words that share a category"></div><div class="puzzle-bottom"><p id="puzzle-message" role="status">Find four words that belong together.</p><button class="button small primary" id="puzzle-submit" type="button" disabled>Check group</button></div><p class="fineprint">Original demonstration puzzle · simplified for this explainer</p></div></div>
+  </section>
+
+  <section class="replay-section section-space" id="replay" aria-labelledby="replay-title"><div class="wrap">
+    <div class="section-caption"><span class="mono">02 / THE TRAJECTORY REPLAY</span><span class="hairline"></span><span class="live-badge">INTERACTIVE</span></div>
+    <div class="section-intro"><h2 id="replay-title">Follow the idea.<br>Then follow the <em>action.</em></h2><div><p>Move through a reconstructed trajectory. See what was represented, what was submitted, and what happened next.</p><span class="placeholder-notice"><span aria-hidden="true">◌</span> Constructed examples. Not recorded model runs.</span></div></div>
+    <div class="replay-shell">
+      <div class="replay-tabs" role="tablist" aria-label="Example trajectory"><button role="tab" id="tab-regression" aria-selected="true" aria-controls="replay-panel" data-run="regression">01 <span>Found, then lost</span></button><button role="tab" id="tab-success" aria-selected="false" aria-controls="replay-panel" tabindex="-1" data-run="success">02 <span>Found and preserved</span></button><button role="tab" id="tab-loop" aria-selected="false" aria-controls="replay-panel" tabindex="-1" data-run="loop">03 <span>The repeated guess</span></button></div>
+      <div id="replay-panel" role="tabpanel" aria-labelledby="tab-regression" tabindex="0">
+        <div class="replay-meta"><div><span class="mono" id="run-type"></span><h3 id="run-title"></h3></div><div class="run-id mono" id="run-id"></div></div>
+        <div class="replay-main"><div class="partition-view"><div class="view-heading"><span class="mono">REPRESENTED GROUPS</span><span id="state-position" class="mono"></span></div><div id="partition-board"></div><div class="board-legend"><span><i class="key good"></i>Exact</span><span><i class="key partial"></i>Clean partial</span><span><i class="key mixed"></i>Mixed</span><span><i class="key unassigned"></i>Unassigned</span></div></div>
+          <div class="quality-view"><div class="view-heading"><span class="mono">PARTITION QUALITY</span><span>Pairwise F1 · 0–1</span></div><div id="trajectory-chart" class="trajectory-chart"></div><div class="quality-values"><div><span>CURRENT STATE</span><strong id="current-quality"></strong></div><div><span>BEST IN RUN</span><strong id="peak-quality"></strong></div><div><span>PEAK → FINAL LOSS</span><strong id="regret-quality"></strong></div></div></div></div>
+        <div class="timeline-controls"><button id="play" class="play-button" type="button" aria-label="Play trajectory">▶</button><label class="sr-only" for="step-slider">Trajectory state</label><input id="step-slider" type="range" min="0" max="7" value="0"><span class="mono" id="step-readout"></span><button class="quiet-button" id="jump-peak" type="button">Best state ↗</button><button class="quiet-button" id="jump-action" type="button">Submission ↗</button></div>
+        <div class="event-detail" aria-live="polite"><span class="event-tag mono" id="event-type"></span><div><h4 id="event-title"></h4><p id="event-description"></p><div id="action-detail"></div></div></div>
+        <div class="history-panel" id="history-panel" hidden><div class="view-heading"><span class="mono">OFFICIAL ACTION HISTORY</span><span>Repeated sets share a letter</span></div><div id="action-history"></div></div>
+      </div><div class="replay-foot"><span>Quality is calculated from the displayed groups and the demonstration puzzle’s gold partition.</span><a href="data/showcase.json" target="_blank">Explore demo data ↗</a></div>
+    </div>
+  </div></section>
+
+  <section class="findings wrap section-space" id="findings" aria-labelledby="findings-title"><div class="section-caption"><span class="mono">03 / WHAT THE ENDPOINT HIDES</span><span class="hairline"></span></div>
+    <div class="findings-grid"><div><h2 id="findings-title">Similar scores.<br><em>Different stories.</em></h2><p>These three models finish with nearly identical mean partition quality. Reveal the peak to see how much useful structure was lost along the way.</p><button id="reveal-peaks" class="button primary" type="button" aria-pressed="false">Reveal what was lost <span aria-hidden="true">↗</span></button><p class="fineprint">Reported paper results · 568 shared single-shot puzzles<br>Peak means derived as mean final + mean regret.</p></div><div class="comparison-panel"><div class="view-heading"><span class="mono">MEAN PARTITION QUALITY</span><span>Pairwise F1</span></div><div class="comparison-legend"><span><i class="key endpoint"></i>Final quality</span><span class="peak-legend" hidden><i class="key mixed"></i>Peak-to-final loss</span></div><div id="comparison-chart"></div><div class="comparison-insight" id="comparison-insight">The endpoints tell a remarkably similar story.</div></div></div>
+    <div class="finding-notes"><article><span class="mono">DISCOVERY ≠ PRESERVATION</span><h3>A good state can disappear.</h3><p>Peak quality and final quality measure different capabilities. Their gap identifies structure found and subsequently lost.</p></article><article><span class="mono">REVISION ≠ ERROR</span><h3>More change isn’t always worse.</h3><p>Churn can reflect productive exploration or unstable reasoning. Error persistence and structural coherence help tell them apart.</p></article><article><span class="mono">ACTION CHANGE ≠ ADAPTATION</span><h3>A → B → A is still a loop.</h3><p>A model can change every adjacent action while returning to a previously rejected guess. History matters.</p></article></div>
+  </section>
+
+  <section class="method-section section-space" id="method" aria-labelledby="method-title"><div class="wrap"><div class="section-caption"><span class="mono">04 / MAKING THE TRAJECTORY VISIBLE</span><span class="hairline"></span></div><div class="section-intro"><h2 id="method-title">From words to<br><em>observable structure.</em></h2><p>We reconstruct the hypotheses a model explicitly expresses. This is a behavioral proxy, not a window into unobserved computation.</p></div>
+    <div class="method-pipeline"><button class="method-step active" type="button" data-method="0" aria-pressed="true"><span class="mono">TIER 01 <span>↗</span></span><h3>Extract</h3><p>Which puzzle words<br>are discussed together?</p></button><button class="method-step" type="button" data-method="1" aria-pressed="false"><span class="mono">TIER 02 <span>↗</span></span><h3>Label</h3><p>Is the group proposed,<br>revised, or rejected?</p></button><button class="method-step" type="button" data-method="2" aria-pressed="false"><span class="mono">TIER 03 <span>↗</span></span><h3>Reconstruct</h3><p>What partition is<br>currently represented?</p></button><button class="method-step" type="button" data-method="3" aria-pressed="false"><span class="mono">TIER 04 <span>↗</span></span><h3>Inspect</h3><p>What changes along<br>the full trajectory?</p></button></div>
+    <div class="method-detail"><span id="method-label" class="mono">DETERMINISTIC EXTRACTION</span><p id="method-description">Lexical matching identifies spans containing at least two puzzle words. This stage finds candidate word sets without deciding whether the model accepts them.</p></div>
+    <div class="metrics-line"><div><span class="mono">M1</span><strong>Revision</strong><p>Churn, abandonment, lock-in</p></div><div><span class="mono">M2</span><strong>Propagation</strong><p>How errors spread and persist</p></div><div><span class="mono">M3</span><strong>Structure</strong><p>Partition-constraint violations</p></div><div><span class="mono">M4</span><strong>Preservation</strong><p>Peak, final quality, and regret</p></div></div>
+  </div></section>
+
+  <section class="closing wrap section-space" aria-labelledby="closing-title"><div class="closing-top"><span class="eyebrow">THE BROADER QUESTION</span><h2 id="closing-title">What good is a better idea<br> if it never becomes a <em>better action?</em></h2><p>Reliable interactive reasoning requires more than discovery. It requires preserving useful structure, carrying it into action, and remembering what feedback has already ruled out.</p><a class="button primary" href="https://github.com/Artifex2002/connections_evals" target="_blank" rel="noopener">Explore the research code <span aria-hidden="true">↗</span></a></div>
+    <div class="research-details"><details><summary>Scope & limitations <span aria-hidden="true">+</span></summary><div><p>The study measures expressed hypotheses rather than latent computation. Stance classification has not yet been systematically validated against human annotations. Connections is a controlled task; transfer to broader agent settings remains to be established.</p><p>Multi-turn model coverage differs. Direct comparisons should use matched puzzles; feedback-conditioned results are descriptive, not causal. High revision alone does not imply poor reasoning.</p></div></details><details><summary>What’s real on this page? <span aria-hidden="true">+</span></summary><div><p>The study counts and three-model comparison are taken from the supplied paper. The puzzle, hero illustration, and selectable replays are constructed demonstrations, not recorded model outputs. Replay quality is computed from their actual displayed partitions.</p><p>Author attribution, a publication-ready paper link, and verified experiment exports can be added when available. No publication or acceptance status is claimed.</p></div></details><details><summary>Replacing the demonstration data <span aria-hidden="true">+</span></summary><div><p>The replay loads a separate data file, ready for curated real runs. Each export should include puzzle words and gold groups, ordered reconstructed partitions, official actions and feedback, model/run identifiers, and policy/version provenance.</p><p>Use the integration guide in the project source to prepare exports. Full databases are not required for this browser experience.</p><a href="data/showcase.json" target="_blank">View the demonstration data format ↗</a></div></details></div>
+  </section>
+</main>
+<footer class="footer wrap"><a href="#" class="footer-title">Finding Is Not Acting<span aria-hidden="true">↗</span></a><a href="https://artifex2002.github.io/">Ashutosh Panda · Portfolio ↗</a><a href="https://github.com/Artifex2002/connections_evals" target="_blank" rel="noopener">Code & methodology ↗</a></footer>
+<noscript><p class="wrap">Enable JavaScript to explore the demonstration puzzle, trajectory replay, and comparisons.</p></noscript>
+</body>
+</html>

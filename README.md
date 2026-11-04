@@ -4,6 +4,12 @@ Research code for measuring how language models discover, revise, preserve, and 
 
 This snapshot contains the **multi-turn collection and analysis pipeline**, including adaptations of the original single-shot metrics. The original single-shot collection and analysis project has not yet been added. In particular, the policy named `previous_guess` is a multi-turn adaptation, not a single-shot experiment runner.
 
+## Interactive project showcase
+
+Explore [Finding Is Not Acting](https://artifex2002.github.io/connections_evals/), an interactive research companion with trajectory replays, a demonstration puzzle, and paper-reported comparisons. The replay examples are explicitly illustrative pending verified experiment exports.
+
+The showcase is maintained on [`codex/project-showcase`](https://github.com/Artifex2002/connections_evals/tree/codex/project-showcase) and published from `docs/` through GitHub Pages. See [the showcase README](docs/README.md) for local preview and data integration.
+
 ## Repository layout
 
 ```text
