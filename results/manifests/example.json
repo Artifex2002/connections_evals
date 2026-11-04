@@ -1,0 +1,22 @@
+{
+  "template": true,
+  "result_id": "REPLACE",
+  "git_commit": "REPLACE_WITH_FULL_COMMIT",
+  "commands": [],
+  "inputs": [
+    {"path": "REPLACE", "sha256": "REPLACE"}
+  ],
+  "reconstruction_policy": "REPLACE",
+  "stored_policy_version": "REPLACE_OR_NULL",
+  "scope": "REPLACE",
+  "models": [],
+  "puzzle_ids_or_subset_file": "REPLACE",
+  "run_selection": "REPLACE",
+  "environment": {
+    "python_version": "REPLACE",
+    "dependency_lock_or_freeze": "REPLACE",
+    "model_revision": "REPLACE"
+  },
+  "outputs": [],
+  "notes": "Fill this template with verified provenance; no paper results are implied."
+}

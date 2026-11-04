@@ -1,0 +1,27 @@
+{
+  "reference_only": true,
+  "provenance": "Defaults in the original structured-model Slurm launcher and current runner; not verified paper-run settings",
+  "runner_module": "connections_research.runners.batch",
+  "model": "REPLACE_WITH_SERVED_MODEL",
+  "decoding": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "max_tokens": 4096
+  },
+  "interaction": {
+    "shuffle_seed": 42,
+    "max_model_turns": 12,
+    "max_mistakes": 4,
+    "auto_complete_final_group": false,
+    "memory_policy": "attempted_groups_categories_and_feedback",
+    "full_reasoning_in_model_memory": false,
+    "answer_recovery": "on_unparseable_generation"
+  },
+  "collection": {
+    "max_attempts_per_puzzle": 2
+  },
+  "analysis": {
+    "reconstruction_policy": "REPLACE_WITH_EXPLICIT_POLICY",
+    "scope": "REPLACE_WITH_ALL_OR_COMMON"
+  }
+}

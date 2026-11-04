@@ -1,4 +1,4 @@
-from src.connections_game import (
+from connections_research.game.environment import (
     ConnectionsGame,
     GroundTruthGroup,
     GuessStatus,

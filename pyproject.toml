@@ -1,4 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "connections-research"
+version = "0.1.0"
+description = "Trajectory analysis for single-shot and multi-turn Connections research"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+inference = ["openai>=1"]
+hf = ["torch>=2", "transformers>=4.45,<5", "huggingface-hub>=0.25", "accelerate>=0.34"]
+plots = ["numpy>=1.24", "matplotlib>=3.7"]
+data = ["huggingface-hub>=0.25"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+connections-run-one = "connections_research.runners.multiturn:main"
+connections-run-batch = "connections_research.runners.batch:main"
+connections-extract = "connections_research.extraction.candidates:main"
+connections-label = "connections_research.extraction.stance:main"
+connections-metrics = "connections_research.metrics.compute:main"
+connections-compare = "connections_research.plotting.compare_models:main"
+connections-plot = "connections_research.plotting.trajectory:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["connections_research*"]
+
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
 testpaths = ["tests"]
 
